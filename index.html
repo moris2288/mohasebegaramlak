@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبه‌گر تبدیل‌های رهن و اجاره</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #3498db            --light: #f8f9fa;
+            --border: #dfe6e9;
+            --purchase-bg: #f0f8ff;
+            --purchase-border: #d0e3ff;
+            --rental-bg: #fff0f0;
+            --rental-border: #ffd0d0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, sans-serif;
+        }
+        
+        body {
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .contact-bar {
+            background: var(--secondary);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 10px 20px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            background: white;
+            border-radius: 10px;
+            padding: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px 10px 0 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .section-content {
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        
+        .word-value {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .result-box {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-right: 3px solid var(--secondary);
+        }
+        
+        .result-value {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        .commission-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .commission-section {
+            flex: 1;
+            padding: 15px            border-radius: 8px;
+        }
+        
+        .purchase-section {
+            background: var(--purchase-bg);
+            border: 1px solid var(--purchase-border);
+        }
+        
+        .rental-section {
+            background: var(--rental-bg);
+            border: 1px solid var(--rental-border);
+        }
+        
+        .commission-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 13px;
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .contact-bar {
+                font-size: 13px;
+                padding: 6px;
+            }
+            
+            .section-header {
+                font-size: 15px;
+                padding: 10px 12px;
+            }
+            
+            .commission-container {
+                flex-direction: column;
+            }
+            
+            input {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>محاسبه‌گر تبدیل‌های رهن و اجاره</h1>
+    </div>
+    
+    <div class="contact-bar">
+        مشاور املاک خان احمدی - تماس: 09111791024
+    </div>
+    
+    <div class="container">
+        <!-- بخش مالک -->
+        <div class="section">
+            <div class="section-header">چه مبلغی می‌توانم ملکم را رهن و اجاره بدهم؟</div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label>قیمت کل ملک (تومان)</label>
+                    <input type="text" id="ownerPropertyValue" placeholder="مثال: 1,000,000,000">
+                    <div class="word-value" id="ownerPropertyValueWords"></div>
+                </div>
+                <div class="form-group">
+                    <label>مبلغ رهن (تومان)</label>
+                    <input type="text" id="ownerMortgage" placeholder="مثال: 200,000,000">
+                    <div class="word-value" id="ownerMortgageWords"></div>
+                </div>
+                <div class="form-group">
+                    <label>مبلغ اجاره ماهانه</label>
+                    <input type="text" id="ownerRent" placeholder="مثال: 3,000,000">
+                    <div class="word-value" id="ownerRentWords"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- بخش مستاجر -->
+        <div class="section">
+            <div class="section-header">تبدیل رهن و اجاره با نسبت به بودجه من</div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label>رهن اعلام شده (تومان)</label>
+                    <input type="text" id="declaredMortgage" placeholder="مثال: 200,000,000">
+                    <div class="word-value" id="declaredMortgageWords"></div>
+                </div>
+                <div class="form-group">
+                    <label>اجاره اعلام شده (تومان)</label>
+                    <input type="text" id="declaredRent" placeholder="مثال: 3,000,000">
+                    <div class="word-value" id="declaredRentWords"></div>
+                </div>
+                <div class="form-group">
+                    <label>بودجه شما برای رهن (تومان)</label>
+                    <input type="text" id="desiredMortgage" placeholder="مثال: 150,000,000">
+                    <div class="word-value" id="desiredMortgageWords"></div>
+                </div>
+                <div class="result-box" id="rentCalculationNote">
+                    <div>نتیجه محاسبه:</div>
+                    <div class="result-value" id="rentSuggestion">لطفاً مقادیر را وارد کنید</div>
+                    <div class="word-value" id="rentSuggestionWords"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- بخش کمیسیون -->
+        <div class="section">
+            <div class="section-header">محاسبه کمیسیون مشاور</div>
+            <div class="section-content">
+                <div class="commission-container">
+                    <div class="commission-section purchase-section">
+                        <div class="commission-title">کمیسیون خرید و فروش</div>
+                        <div class="form-group">
+                            <label>مبلغ معامله (تومان)</label>
+                            <input type="text" id="purchaseAmount" placeholder="مثال: 1,000,000,000">
+                            <div class="word-value" id="purchaseAmountWords"></div>
+                        </div>
+                        <div class="result-box">
+                            <div>حق کمیسیون (1%)</div>
+                            <div class="result-value" id="purchaseCommission">0 تومان</div>
+                            <div class="word-value" id="purchaseCommissionWords"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="commission-section rental-section">
+                        <div class="commission-title">کمیسیون رهن و اجاره</div>
+                        <div class="form-group">
+                            <label>مبلغ رهن (تومان)</label>
+                            <input type="text" id="rentalMortgage" placeholder="مثال: 200,000,000">
+                            <div class="word-value" id="rentalMortgageWords"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>مبلغ اجاره (تومان)</label>
+                            <input type="text" id="rentalRent" placeholder="مثال: 3,000,000">
+                            <div class="word-value" id="rentalRentWords"></div>
+                        </div>
+                        <div class="result-box">
+                            <div>حق کمیسیون</div>
+                            <div class="result-value" id="rentalCommissionResult">0 تومان</div>
+                            <div class="word-value" id="rentalCommissionWords"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        مشاور املاک خان احمدی - تخصص در امور رهن و اجاره مسکونی و تجاری
+    </div>
+
+    <script>
+        // تابع تبدیل عدد به حروف فارسی
+        function numberToWords(num) {
+            if (num === 0) return "صفر";
+            
+            const units = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
+            const teens = ["ده", "یازده", "دوازده", "سیزده", "چهارده", "پانزده", "شانزده", "هفده", "هجده", "نوزده"];
+            const tens = ["", "ده", "بیست", "سی", "چهل", "پنجاه", "شصت", "هفتاد", "هشتاد", "نود"];
+            const hundreds = ["", "صد", "دویست", "سیصد", "چهارصد", "پانصد", "ششصد", "هفتصد", "هشتصد", "نهصد"];
+            const scales = ["", "هزار", "میلیون", "میلیارد", "تریلیون"];
+            
+            let words = [];
+            
+            // تقسیم عدد به گروه‌های سه‌رقمی
+            let groups = [];
+            while (num > 0) {
+                groups.push(num % 1000);
+                num = Math.floor(num / 1000);
+            }
+            
+            for (let i = 0; i < groups.length; i++) {
+                let group = groups[i];
+                if (group > 0) {
+                    let groupWords = [];
+                    
+                    // صدگان
+                    let hundred = Math.floor(group / 100);
+                    if (hundred > 0) {
+                        groupWords.push(hundreds[hundred]);
+                    }
+                    
+                    // دهگان و یکان
+                    let remainder = group % 100;
+                    if (remainder > 0) {
+                        if (remainder < 10) {
+                            groupWords.push(units[remainder]);
+                        } else if (remainder < 20) {
+                            groupWords.push(teens[remainder - 10]);
+                        } else {
+                            let ten = Math.floor(remainder / 10);
+                            let unit = remainder % 10;
+                            groupWords.push(tens[ten]);
+                            if (unit > 0) {
+                                groupWords.push(units[unit]);
+                            }
+                        }
+                    }
+                    
+                    // اضافه کردن مقیاس
+                    if (i > 0) {
+                        groupWords.push(scales[i]);
+                    }
+                    
+                    words.unshift(groupWords.join(" و "));
+                }
+            }
+            
+            return words.join(" و ") + " تومان";
+        }
+
+        // توابع کمکی
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+
+        function parseNumber(str) {
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+
+        // نمایش مبلغ به حروف
+        function updateWordValues() {
+            document.getElementById('ownerPropertyValueWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('ownerPropertyValue').value));
+            document.getElementById('ownerMortgageWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('ownerMortgage').value));
+            document.getElementById('ownerRentWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('ownerRent').value));
+            document.getElementById('declaredMortgageWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('declaredMortgage').value));
+            document.getElementById('declaredRentWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('declaredRent').value));
+            document.getElementById('desiredMortgageWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('desiredMortgage').value));
+            document.getElementById('purchaseAmountWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('purchaseAmount').value));
+            document.getElementById('rentalMortgageWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('rentalMortgage').value));
+            document.getElementById('rentalRentWords').textContent = 
+                numberToWords(parseNumber(document.getElementById('rentalRent').value));
+            
+            // برای مبالغ محاسبه شده
+            const purchaseCommission = parseNumber(document.getElementById('purchaseCommission').textContent);
+            document.getElementById('purchaseCommissionWords').textContent = numberToWords(purchaseCommission);
+            
+            const rentalCommission = parseNumber(document.getElementById('rentalCommissionResult').textContent);
+            document.getElementById('rentalCommissionWords').textContent = numberToWords(rentalCommission);
+            
+            // برای پیشنهاد اجاره
+            const rentSuggestion = document.getElementById('rentSuggestion').textContent;
+            if (rentSuggestion !== 'لطفاً مقادیر را وارد کنید') {
+                const rentValue = parseNumber(rentSuggestion.replace(/[^\d]/g, ''));
+                document.getElementById('rentSuggestionWords').textContent = numberToWords(rentValue);
+            } else {
+                document.getElementById('rentSuggestionWords').textContent = '';
+            }
+        }
+
+        // متغیرهای حالت
+        let lastPropertyValue = 0;
+        let lastMortgageValue = 0;
+        let lastRentValue = 0;
+        let isCalculating = false;
+
+        // محاسبات بخش مالک
+        function calculateOwnerSection() {
+            if (isCalculating) return;
+            isCalculating = true;
+            
+            const propertyValue = parseNumber(document.getElementById('ownerPropertyValue').value);
+            const mortgageInput = document.getElementById('ownerMortgage');
+            const rentInput = document.getElementById('ownerRent');
+            
+            let mortgageValue = parseNumber(mortgageInput.value);
+            let rentValue = parseNumber(rentInput.value);
+            
+            // اگر قیمت ملک تغییر کرد
+            if (propertyValue !== lastPropertyValue && propertyValue > 0) {
+                const fullMortgage = Math.round(propertyValue * 0.15);
+                mortgageValue = fullMortgage;
+                mortgageInput.value = formatNumber(fullMortgage);
+                lastMortgageValue = fullMortgage;
+                
+                // محاسبه اجاره بر اساس رهن کامل
+                rentValue = 0;
+                rentInput.value = formatNumber(0);
+                lastRentValue = 0;
+                
+                lastPropertyValue = propertyValue;
+            } 
+            // اگر رهن تغییر کرد
+            else if (mortgageValue !== lastMortgageValue) {
+                const propertyValue = parseNumber(document.getElementById('ownerPropertyValue').value);
+                if (propertyValue > 0) {
+                    const fullMortgage = propertyValue * 0.15;
+                    const difference = fullMortgage - mortgageValue;
+                    rentValue = Math.round((difference / 100000) * 3000);
+                    rentInput.value = formatNumber(rentValue);
+                    lastRentValue = rentValue;
+                }
+                lastMortgageValue = mortgageValue;
+            }
+            // اگر اجاره تغییر کرد
+            else if (rentValue !== lastRentValue) {
+                const propertyValue = parseNumber(document.getElementById('ownerPropertyValue').value);
+                if (propertyValue > 0) {
+                    const fullMortgage = propertyValue * 0.15;
+                    mortgageValue = Math.round(fullMortgage - ((rentValue / 3000) * 100000));
+                    mortgageInput.value = formatNumber(mortgageValue);
+                    lastMortgageValue = mortgageValue;
+                }
+                lastRentValue = rentValue;
+            }
+            
+            isCalculating = false;
+        }
+
+        // محاسبات بخش مستاجر
+        function calculateRenterSection() {
+            const declaredMortgage = parseNumber(document.getElementById('declaredMortgage').value);
+            const declaredRent = parseNumber(document.getElementById('declaredRent').value);
+            const desiredMortgage = parseNumber(document.getElementById('desiredMortgage').value);
+            
+            if (declaredMortgage && declaredRent && desiredMortgage) {
+                const rentChange = ((declaredMortgage - desiredMortgage) / 100000) * 3000;
+                const newRent = Math.round(declaredRent + rentChange);
+                document.getElementById('rentSuggestion').textContent = 
+                    `نسبت به بودجه رهن شما باید ${formatNumber(newRent)} تومان بابت اجاره بپردازید`;
+            } else {
+                document.getElementById('rentSuggestion').textContent = 'لطفاً مقادیر را وارد کنید';
+            }
+        }
+
+        // محاسبات کمیسیون
+        function calculateCommission() {
+            const purchase = parseNumber(document.getElementById('purchaseAmount').value);
+            const purchaseCommission = Math.round(purchase * 0.01);
+            document.getElementById('purchaseCommission').textContent = formatNumber(purchaseCommission) + ' تومان';
+            
+            const rentalMortgage = parseNumber(document.getElementById('rentalMortgage').value);
+            const rentalRent = parseNumber(document.getElementById('rentalRent').value);
+            const commission = Math.round((rentalRent + (rentalMortgage / 100000 * 3000)) / 4);
+            document.getElementById('rentalCommissionResult').textContent = formatNumber(commission) + ' تومان';
+        }
+
+        function calculateAll() {
+            calculateOwnerSection();
+            calculateRenterSection();
+            calculateCommission();
+            updateWordValues();
+        }
+
+        // رویدادهای ورودی
+        document.getElementById('ownerPropertyValue').addEventListener('input', function() {
+            this.value = formatNumber(parseNumber(this.value));
+            calculateAll();
+        });
+        
+        document.getElementById('ownerMortgage').addEventListener('input', function() {
+            this.value = formatNumber(parseNumber(this.value));
+            calculateAll();
+        });
+        
+        document.getElementById('ownerRent').addEventListener('input', function() {
+            this.value = formatNumber(parseNumber(this.value));
+            calculateAll();
+        });
+
+        // رویدادهای ورودی برای سایر فیلدها
+        document.querySelectorAll('input:not(#ownerPropertyValue):not(#ownerMortgage):not(#ownerRent)').forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = formatNumber(parseNumber(this.value));
+                calculateAll();
+            });
+        });
+
+        // مقداردهی اولیه
+        calculateAll();
+    </script>
+</body>
+</html>
